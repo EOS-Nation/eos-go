@@ -240,6 +240,8 @@ func (a *ABI) read(binaryDecoder *Decoder, fieldType string) (interface{}, error
 			return nil, fmt.Errorf("unable to read variant type index: %w", err)
 		}
 
+		zlog.Error("variant.Types", zap.Any("variantIndex", variantIndex), zap.Any("variant", variant), zap.String("fieldType", fieldType))
+
 		if int(variantIndex) >= len(variant.Types) {
 			return nil, fmt.Errorf("variant type index is unknown, got type index %d, know up to index %d", variantIndex, len(variant.Types)-1)
 		}
