@@ -80,6 +80,19 @@ func (a *ABI) decode(binaryDecoder *Decoder, structName string) (map[string]inte
 		zlog.Debug("decode struct", zap.String("name", structName))
 	}
 
+	zlog.Error("decode struct", zap.String("name", structName))
+
+	if strings.Contains(structName, "variant") {
+		variant := a.VariantForName(structName)
+		if variant != nil {
+			out, err := binaryDecoder.ReadUvarint32()
+			if err != nil {
+				zlog.Error("error reading variant", zap.Error(err))
+			}
+			structName = variant.Types[out]
+		}
+	}
+
 	structure := a.StructForName(structName)
 	if structure == nil {
 		return nil, fmt.Errorf("structure [%s] not found in abi", structName)
@@ -93,7 +106,7 @@ func (a *ABI) decode(binaryDecoder *Decoder, structName string) (map[string]inte
 
 		baseName, isAlias := a.TypeNameForNewTypeName(structure.Base)
 		if isAlias && tracer.Enabled() {
-			zlog.Debug("base is an alias", zap.String("from", structure.Base), zap.String("to", baseName))
+			zlog.Error("base is an alias", zap.String("from", structure.Base), zap.String("to", baseName))
 		}
 
 		var err error
