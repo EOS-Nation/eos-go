@@ -7,7 +7,18 @@ import (
 	"go.uber.org/zap"
 )
 
-var zlog, tracer = logging.PackageLogger("eos-go", "github.com/eoscanada/eos-go")
+var zlog *zap.Logger
+var tracer = &Tracer{}
+
+func init() {
+	logging.Register("github.com/eoscanada/eos-go", &zlog)
+}
+
+type Tracer struct{}
+
+func (t *Tracer) Enabled() bool {
+	return logging.IsTraceEnabled("eos-go", "github.com/eoscanada/eos-go")
+}
 
 type logStringerFunc func() string
 
